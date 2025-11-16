@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -37,10 +38,13 @@ public class Reserva {
     @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime horaFin;
 
-    @NotNull(message = "El estado de la reserva es obligatorio.")
     private EstadoReserva estado;
 
     private BigDecimal precioTotal;
+
+    private LocalDateTime fechaInicio;
+    
+    private LocalDateTime fechaFin;
 
     public enum EstadoReserva {
         PENDIENTE,

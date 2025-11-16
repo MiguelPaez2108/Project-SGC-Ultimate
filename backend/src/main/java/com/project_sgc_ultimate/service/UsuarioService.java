@@ -1,13 +1,14 @@
 package com.project_sgc_ultimate.service;
 
+import com.project_sgc_ultimate.dto.UsuarioRequestDTO;
 import com.project_sgc_ultimate.model.Usuario;
 import com.project_sgc_ultimate.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,53 +16,92 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
 
-    public Usuario buscarPorId(String id) {
+    public Usuario obtenerPorId(String id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado"
+                ));
     }
 
-    public Usuario buscarPorEmail(String email) {
-        return usuarioRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-    }
+    public Usuario crearDesdeDto(UsuarioRequestDTO dto) {
 
-    public Usuario registrar(Usuario usuario) {
-        usuarioRepository.findByEmailIgnoreCase(usuario.getEmail())
+        usuarioRepository.findByEmailIgnoreCase(dto.getEmail())
                 .ifPresent(u -> {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El correo ya está registrado");
+                    throw new ResponseStatusException(
+                            HttpStatus.BAD_REQUEST,
+                            "El correo ya está registrado"
+                    );
                 });
 
-        usuario.setFechaRegistro(LocalDateTime.now());
-        if (usuario.getActivo() == null) {
-            usuario.setActivo(true);
-        }
-        if (usuario.getRol() == null) {
+        Usuario usuario = new Usuario();
+        usuario.setNombreCompleto(dto.getNombreCompleto());
+        usuario.setEmail(dto.getEmail());
+        usuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        usuario.setActivo(true);
+
+        if (dto.getRol() != null) {
+            try {
+                usuario.setRol(Usuario.RolUsuario.valueOf(dto.getRol().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Rol inválido. Use ADMIN, CLIENTE o EMPLEADO."
+                );
+            }
+        } else {
             usuario.setRol(Usuario.RolUsuario.CLIENTE);
         }
 
-        // TODO: aquí deberías hashear la contraseña (passwordHash) antes de guardar.
         return usuarioRepository.save(usuario);
     }
 
-    public Usuario actualizar(String id, Usuario usuarioActualizado) {
-        Usuario existente = buscarPorId(id);
+    public Usuario actualizarDesdeDto(String id, UsuarioRequestDTO dto) {
+        Usuario usuario = obtenerPorId(id);
 
-        existente.setNombreCompleto(usuarioActualizado.getNombreCompleto());
-        existente.setTelefono(usuarioActualizado.getTelefono());
-        existente.setRol(usuarioActualizado.getRol());
-        existente.setActivo(usuarioActualizado.getActivo());
+        if (dto.getNombreCompleto() != null) {
+            usuario.setNombreCompleto(dto.getNombreCompleto());
+        }
 
-        return usuarioRepository.save(existente);
+        if (dto.getEmail() != null && !dto.getEmail().equalsIgnoreCase(usuario.getEmail())) {
+            usuarioRepository.findByEmailIgnoreCase(dto.getEmail())
+                    .ifPresent(u -> {
+                        throw new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "El correo ya está en uso por otro usuario"
+                        );
+                    });
+            usuario.setEmail(dto.getEmail());
+        }
+
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            usuario.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getRol() != null) {
+            try {
+                usuario.setRol(Usuario.RolUsuario.valueOf(dto.getRol().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Rol inválido. Use ADMIN, CLIENTE o EMPLEADO."
+                );
+            }
+        }
+
+        return usuarioRepository.save(usuario);
     }
 
-    public void desactivar(String id) {
-        Usuario existente = buscarPorId(id);
-        existente.setActivo(false);
-        usuarioRepository.save(existente);
+    public void eliminar(String id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
+        }
+        usuarioRepository.deleteById(id);
     }
 }

@@ -1,14 +1,16 @@
 package com.project_sgc_ultimate.controller;
 
+import com.project_sgc_ultimate.dto.UsuarioRequestDTO;
+import com.project_sgc_ultimate.dto.UsuarioResponseDTO;
 import com.project_sgc_ultimate.model.Usuario;
 import com.project_sgc_ultimate.service.UsuarioService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -18,38 +20,51 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarTodos() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+        List<Usuario> usuarios = usuarioService.listarTodos();
+
+        List<UsuarioResponseDTO> respuesta = usuarios.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerPorId(@PathVariable String id) {
-        return ResponseEntity.ok(usuarioService.buscarPorId(id));
-    }
-
-    @GetMapping("/buscar-por-email")
-    public ResponseEntity<Usuario> obtenerPorEmail(@RequestParam String email) {
-        return ResponseEntity.ok(usuarioService.buscarPorEmail(email));
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorId(@PathVariable String id) {
+        Usuario usuario = usuarioService.obtenerPorId(id);
+        return ResponseEntity.ok(mapToResponseDto(usuario));
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> registrar(@Valid @RequestBody Usuario usuario) {
-        Usuario creado = usuarioService.registrar(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    public ResponseEntity<UsuarioResponseDTO> crear(@RequestBody UsuarioRequestDTO dto) {
+        Usuario creado = usuarioService.crearDesdeDto(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(creado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizar(
+    public ResponseEntity<UsuarioResponseDTO> actualizar(
             @PathVariable String id,
-            @Valid @RequestBody Usuario usuario
+            @RequestBody UsuarioRequestDTO dto
     ) {
-        Usuario actualizado = usuarioService.actualizar(id, usuario);
-        return ResponseEntity.ok(actualizado);
+        Usuario actualizado = usuarioService.actualizarDesdeDto(id, dto);
+        return ResponseEntity.ok(mapToResponseDto(actualizado));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> desactivar(@PathVariable String id) {
-        usuarioService.desactivar(id);
+    public ResponseEntity<Void> eliminar(@PathVariable String id) {
+        usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ====== Mapeo interno entidad → DTO ======
+
+    private UsuarioResponseDTO mapToResponseDto(Usuario usuario) {
+        return UsuarioResponseDTO.builder()
+                .id(usuario.getId())
+                .nombreCompleto(usuario.getNombreCompleto())
+                .email(usuario.getEmail())
+                .rol(usuario.getRol() != null ? usuario.getRol().name() : null)
+                .build();
     }
 }

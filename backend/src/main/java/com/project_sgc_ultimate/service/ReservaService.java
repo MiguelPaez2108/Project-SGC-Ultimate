@@ -1,13 +1,20 @@
 package com.project_sgc_ultimate.service;
 
+import com.project_sgc_ultimate.dto.ReservaRequestDTO;
+import com.project_sgc_ultimate.model.Cancha;
 import com.project_sgc_ultimate.model.Reserva;
+import com.project_sgc_ultimate.model.Usuario;
+import com.project_sgc_ultimate.repository.CanchaRepository;
 import com.project_sgc_ultimate.repository.ReservaRepository;
+import com.project_sgc_ultimate.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalTime;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,72 +22,108 @@ import java.util.List;
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
+    private final CanchaRepository canchaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public List<Reserva> listarTodas() {
         return reservaRepository.findAll();
     }
 
-    public List<Reserva> listarPorUsuario(String usuarioId) {
-        return reservaRepository.findByUsuarioId(usuarioId);
-    }
-
-    public Reserva buscarPorId(String id) {
+    public Reserva obtenerPorId(String id) {
         return reservaRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Reserva no encontrada"
+                ));
     }
 
-    public Reserva crear(Reserva reserva) {
-        // Validar solape básico en misma cancha y fecha
-        List<Reserva> reservasMismoDia = reservaRepository.findByCanchaIdAndFecha(
-                reserva.getCanchaId(),
-                reserva.getFecha()
-        );
+    public Reserva crearDesdeDto(ReservaRequestDTO dto) {
 
-        for (Reserva r : reservasMismoDia) {
-            if (r.getEstado() == Reserva.EstadoReserva.CANCELADA) continue;
+        // Validar cancha
+        Cancha cancha = canchaRepository.findById(dto.getCanchaId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cancha no encontrada"
+                ));
 
-            boolean solapa = intervalosSolapan(
-                    reserva.getHoraInicio(), reserva.getHoraFin(),
-                    r.getHoraInicio(), r.getHoraFin()
+        // Validar usuario
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Usuario no encontrado"
+                ));
+
+        // Validar fechas
+        LocalDateTime inicio = dto.getFechaInicio();
+        LocalDateTime fin = dto.getFechaFin();
+
+        if (inicio == null || fin == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Las fechas de inicio y fin son obligatorias"
             );
-
-            if (solapa) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "La cancha ya tiene una reserva en ese horario"
-                );
-            }
         }
 
-        if (reserva.getEstado() == null) {
-            reserva.setEstado(Reserva.EstadoReserva.PENDIENTE);
+        if (inicio.isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La fecha de inicio no puede ser en el pasado"
+            );
         }
+
+        if (!fin.isAfter(inicio)) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La fecha/hora de fin debe ser posterior a la de inicio"
+            );
+        }
+
+        // Validar solapamiento
+        if (haySolapamiento(cancha.getId(), inicio, fin)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "La cancha ya está reservada en ese horario"
+            );
+        }
+
+        // Calcular precio total (BigDecimal)
+        double horasDouble = Duration.between(inicio, fin).toMinutes() / 60.0;
+        BigDecimal horas = BigDecimal.valueOf(horasDouble);
+        BigDecimal precioTotal = cancha.getPrecioPorHora().multiply(horas);
+
+        Reserva reserva = Reserva.builder()
+                .canchaId(cancha.getId())
+                .usuarioId(usuario.getId())
+                .fechaInicio(inicio)
+                .fechaFin(fin)
+                .precioTotal(precioTotal)
+                .estado(Reserva.EstadoReserva.PENDIENTE)
+                .build();
 
         return reservaRepository.save(reserva);
     }
 
-    public Reserva actualizar(String id, Reserva reservaActualizada) {
-        Reserva existente = buscarPorId(id);
-
-        existente.setCanchaId(reservaActualizada.getCanchaId());
-        existente.setUsuarioId(reservaActualizada.getUsuarioId());
-        existente.setFecha(reservaActualizada.getFecha());
-        existente.setHoraInicio(reservaActualizada.getHoraInicio());
-        existente.setHoraFin(reservaActualizada.getHoraFin());
-        existente.setEstado(reservaActualizada.getEstado());
-        existente.setPrecioTotal(reservaActualizada.getPrecioTotal());
-
-        return reservaRepository.save(existente);
+    public Reserva actualizarEstado(String id, Reserva.EstadoReserva nuevoEstado) {
+        Reserva reserva = obtenerPorId(id);
+        reserva.setEstado(nuevoEstado);
+        return reservaRepository.save(reserva);
     }
 
-    public void cancelar(String id) {
-        Reserva existente = buscarPorId(id);
-        existente.setEstado(Reserva.EstadoReserva.CANCELADA);
-        reservaRepository.save(existente);
+    public void eliminar(String id) {
+        if (!reservaRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada");
+        }
+        reservaRepository.deleteById(id);
     }
 
-    private boolean intervalosSolapan(LocalTime inicio1, LocalTime fin1,
-                                      LocalTime inicio2, LocalTime fin2) {
-        return inicio1.isBefore(fin2) && inicio2.isBefore(fin1);
+    private boolean haySolapamiento(String canchaId, LocalDateTime inicio, LocalDateTime fin) {
+        List<Reserva> reservas = reservaRepository.findAll();
+
+        return reservas.stream()
+                .filter(r -> r.getCanchaId().equals(canchaId))
+                .anyMatch(r ->
+                        r.getFechaInicio().isBefore(fin) &&
+                        r.getFechaFin().isAfter(inicio)
+                );
     }
 }
