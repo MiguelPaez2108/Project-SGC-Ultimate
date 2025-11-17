@@ -2,6 +2,7 @@ package com.project_sgc_ultimate.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,11 +11,14 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // DEBE tener mínimo 32 caracteres para HS256
-    private static final String SECRET = "MI_SECRETO_SUPER_MEGA_ULTRA_SEGURO_1234567890";
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private long expirationTime;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generarToken(String email, String rol) {
@@ -22,8 +26,7 @@ public class JwtUtil {
                 .setSubject(email)
                 .claim("rol", rol)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System
-                        .currentTimeMillis() + 1000L * 60 * 60 * 24)) // 24h
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -37,6 +40,15 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    public String obtenerRol(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("rol", String.class);
+    }
+
     public boolean validar(String token) {
         try {
             Jwts.parserBuilder()
@@ -46,6 +58,20 @@ public class JwtUtil {
             return true;
         } catch (JwtException e) {
             return false;
+        }
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (JwtException e) {
+            return true;
         }
     }
 }
