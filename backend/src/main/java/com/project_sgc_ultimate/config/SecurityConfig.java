@@ -36,6 +36,20 @@ public class SecurityConfig {
                 // Reservas: CLIENTE puede crear/ver sus reservas, ADMIN puede ver todas
                 .requestMatchers("/api/reservas/**").hasAnyRole("CLIENTE", "ADMIN")
 
+                // Pagos: CLIENTE puede ver sus pagos, ADMIN puede ver todos
+                .requestMatchers(HttpMethod.GET, "/api/pagos/**").hasAnyRole("CLIENTE", "ADMIN")
+                .requestMatchers("/api/pagos/**").hasRole("ADMIN")
+
+                // Notificaciones: CLIENTE puede ver sus notificaciones
+                .requestMatchers("/api/notificaciones/**").hasAnyRole("CLIENTE", "ADMIN")
+
+                // Horarios: GET para todos, POST/PUT/DELETE solo ADMIN
+                .requestMatchers(HttpMethod.GET, "/api/horarios/**").hasAnyRole("CLIENTE", "ADMIN")
+                .requestMatchers("/api/horarios/**").hasRole("ADMIN")
+
+                // Auditorías: solo ADMIN
+                .requestMatchers("/api/auditorias/**").hasRole("ADMIN")
+
                 // Usuarios: solo ADMIN puede listar o modificar
                 .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
 
