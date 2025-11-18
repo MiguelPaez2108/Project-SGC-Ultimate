@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
+import CanchaDetalle from "../pages/cliente/CanchaDetalle.jsx";
+
 
 // Pages
 import LoginPage from "../pages/auth/LoginPage.jsx";
