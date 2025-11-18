@@ -1,16 +1,21 @@
 package com.project_sgc_ultimate.repository;
 
 import com.project_sgc_ultimate.model.Reserva;
+import com.project_sgc_ultimate.model.Reserva.EstadoReserva;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 public interface ReservaRepository extends MongoRepository<Reserva, String> {
 
-    List<Reserva> findByCanchaIdAndFecha(String canchaId, LocalDate fecha);
-
     List<Reserva> findByUsuarioId(String usuarioId);
+
+    // Para detectar solapamiento de reservas en la misma cancha
+    List<Reserva> findByCanchaIdAndEstadoInAndFechaFinGreaterThanAndFechaInicioLessThan(
+            String canchaId,
+            List<EstadoReserva> estados,
+            LocalDateTime fechaInicio,
+            LocalDateTime fechaFin
+    );
 }

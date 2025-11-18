@@ -21,7 +21,7 @@ public class Horario {
     private String id;
 
     @NotNull(message = "La cancha es obligatoria.")
-    private String canchaId;      // Referencia a Cancha (String, no DBRef)
+    private String canchaId;
 
     @NotNull(message = "El día de la semana es obligatorio.")
     private DiaSemana diaSemana;
@@ -32,7 +32,7 @@ public class Horario {
     @NotNull(message = "La hora de fin es obligatoria.")
     private LocalTime horaFin;
 
-    private Boolean activo;
+    private boolean activo = true;
 
     public enum DiaSemana {
         LUNES,

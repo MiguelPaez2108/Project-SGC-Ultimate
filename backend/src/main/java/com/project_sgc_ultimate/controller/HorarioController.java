@@ -31,31 +31,28 @@ public class HorarioController {
     })
     public ResponseEntity<List<HorarioResponseDTO>> listarTodos() {
         List<Horario> horarios = horarioService.listarTodos();
+
         List<HorarioResponseDTO> respuesta = horarios.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/por-cancha/{canchaId}")
     @Operation(summary = "Listar horarios por cancha")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista de horarios obtenida exitosamente")
-    })
     public ResponseEntity<List<HorarioResponseDTO>> listarPorCancha(@PathVariable String canchaId) {
         List<Horario> horarios = horarioService.listarPorCancha(canchaId);
+
         List<HorarioResponseDTO> respuesta = horarios.stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener horario por ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Horario encontrado"),
-        @ApiResponse(responseCode = "404", description = "Horario no encontrado")
-    })
     public ResponseEntity<HorarioResponseDTO> obtenerPorId(@PathVariable String id) {
         Horario horario = horarioService.buscarPorId(id);
         return ResponseEntity.ok(mapToResponseDto(horario));
@@ -64,10 +61,6 @@ public class HorarioController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear nuevo horario")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Horario creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos")
-    })
     public ResponseEntity<HorarioResponseDTO> crear(@Valid @RequestBody HorarioRequestDTO dto) {
         Horario creado = horarioService.crearDesdeDto(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(creado));
@@ -76,10 +69,6 @@ public class HorarioController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar horario")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Horario actualizado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Horario no encontrado")
-    })
     public ResponseEntity<HorarioResponseDTO> actualizar(
             @PathVariable String id,
             @Valid @RequestBody HorarioRequestDTO dto
@@ -91,15 +80,14 @@ public class HorarioController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Eliminar horario")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Horario eliminado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Horario no encontrado")
-    })
     public ResponseEntity<Void> eliminar(@PathVariable String id) {
         horarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
 
+   
+    // MAPEO A DTO  (NO BORRAR)
+  
     private HorarioResponseDTO mapToResponseDto(Horario horario) {
         return HorarioResponseDTO.builder()
                 .id(horario.getId())
@@ -107,7 +95,7 @@ public class HorarioController {
                 .diaSemana(horario.getDiaSemana() != null ? horario.getDiaSemana().name() : null)
                 .horaInicio(horario.getHoraInicio() != null ? horario.getHoraInicio().toString() : null)
                 .horaFin(horario.getHoraFin() != null ? horario.getHoraFin().toString() : null)
-                .activo(horario.getActivo())
+                .activo(horario.isActivo())  // <- AQUÍ EL CAMBIO CORRECTO
                 .build();
     }
 }
