@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.js";
 import { getCanchas } from "../../api/canchasApi.js";
 
@@ -32,6 +33,10 @@ export default function ClienteDashboard() {
       <p>Role: {role}</p>
       <p>User ID: {userId}</p>
 
+      <p style={{ marginTop: "1rem" }}>
+        <Link to="/cliente/reservas">Go to my reservations</Link>
+      </p>
+
       <h2 style={{ marginTop: "2rem" }}>Available fields</h2>
 
       {loading && <p>Loading fields...</p>}
@@ -54,7 +59,14 @@ export default function ClienteDashboard() {
                 border: "1px solid #1f2937",
               }}
             >
-              <h3 style={{ margin: 0 }}>{cancha.nombre}</h3>
+              <h3 style={{ margin: 0 }}>
+                <Link
+                  to={`/cliente/cancha/${cancha.id}`}
+                  style={{ color: "#38bdf8", textDecoration: "none" }}
+                >
+                  {cancha.nombre}
+                </Link>
+              </h3>
               <p style={{ margin: "0.25rem 0" }}>
                 Type: {cancha.tipo} · Price per hour:{" "}
                 <strong>${cancha.precioPorHora}</strong>
