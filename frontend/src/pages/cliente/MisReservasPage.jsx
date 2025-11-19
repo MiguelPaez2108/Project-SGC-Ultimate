@@ -1,167 +1,188 @@
+// frontend/src/pages/cliente/MisReservasPage.jsx
 import { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import { useAuth } from "../../hooks/useAuth.jsx";
 
-export default function MisReservasPage() {
-  const { userId } = useAuth();
+const STATUS_LABELS = {
+  PENDIENTE: "Pending",
+  CONFIRMADA: "Confirmed",
+  COMPLETADA: "Completed",
+  CANCELADA: "Canceled",
+};
 
+export default function MisReservasPage() {
+  const { user } = useAuth();
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
+  const [cancelingId, setCancelingId] = useState(null);
+  const [error, setError] = useState("");
 
-  const loadReservas = async () => {
+  async function loadReservas() {
+    setLoading(true);
+    setError("");
     try {
-      setLoading(true);
-      setError(null);
-      const res = await axiosClient.get("/api/reservas");
-      // Filtrar solo las del usuario logueado
-      const mias = res.data.filter((r) => r.usuarioId === userId);
-      setReservas(mias);
+      const res = await axiosClient.get("/api/reservas/mis");
+      setReservas(res.data || []);
     } catch (err) {
-      console.error("Error loading reservations:", err);
-      setError("Could not load your reservations.");
+      console.error("Error loading my reservations:", err);
+      setError("Error loading reservations.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    if (!userId) return;
     loadReservas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, []);
 
-  const handleCancel = async (reservaId) => {
-    const confirmCancel = window.confirm(
-      "Are you sure you want to cancel this reservation?"
-    );
-    if (!confirmCancel) return;
+  function formatDate(str) {
+    if (!str) return "-";
+    return str.replace("T", " ");
+  }
+
+  async function handleCancel(id) {
+    const reserva = reservas.find((r) => r.id === id);
+    if (!reserva) return;
+
+    if (
+      reserva.estado === "COMPLETADA" ||
+      reserva.estado === "CANCELADA"
+    ) {
+      alert("This reservation can no longer be canceled.");
+      return;
+    }
+
+    if (!window.confirm("Are you sure you want to cancel this reservation?")) {
+      return;
+    }
+
+    setCancelingId(id);
+    setError("");
 
     try {
-      setUpdatingId(reservaId);
-      setError(null);
-
-      await axiosClient.put(
-        `/api/reservas/${reservaId}/estado?estado=CANCELADA`
-      );
-
-      // Recargar reservas
+      await axiosClient.put(`/api/reservas/${id}/estado`, null, {
+        params: { estado: "CANCELADA" },
+      });
       await loadReservas();
     } catch (err) {
       console.error("Error cancelling reservation:", err);
-      setError("Error cancelling the reservation. Please try again.");
+      setError("Error cancelling reservation.");
     } finally {
-      setUpdatingId(null);
+      setCancelingId(null);
     }
-  };
+  }
 
   return (
-    <main style={{ padding: "2rem" }}>
-      <h1>My reservations</h1>
+    <main
+      style={{
+        padding: "2rem",
+        color: "#e5e7eb",
+        minHeight: "100vh",
+        backgroundColor: "#020617",
+      }}
+    >
+      <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
+        My reservations
+      </h1>
 
-      {loading && <p>Loading reservations...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {!loading && !error && reservas.length === 0 && (
-        <p>You don&apos;t have any reservations yet.</p>
+      {user && (
+        <p style={{ marginBottom: "1.5rem", color: "#9ca3af" }}>
+          Logged in as <strong>{user.nombreCompleto}</strong> ({user.email})
+        </p>
       )}
 
-      {!loading && !error && reservas.length > 0 && (
-        <table
+      {error && (
+        <p style={{ color: "#f97373", marginBottom: "0.75rem" }}>{error}</p>
+      )}
+
+      {loading ? (
+        <p>Loading reservations...</p>
+      ) : reservas.length === 0 ? (
+        <p>You don't have any reservations yet.</p>
+      ) : (
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "1rem",
+            overflowX: "auto",
+            borderRadius: "0.75rem",
+            border: "1px solid #1f2937",
           }}
         >
-          <thead>
-            <tr>
-              <th style={{ borderBottom: "1px solid #1f2937", padding: "0.5rem" }}>
-                Field
-              </th>
-              <th style={{ borderBottom: "1px solid #1f2937", padding: "0.5rem" }}>
-                Start
-              </th>
-              <th style={{ borderBottom: "1px solid #1f2937", padding: "0.5rem" }}>
-                End
-              </th>
-              <th style={{ borderBottom: "1px solid #1f2937", padding: "0.5rem" }}>
-                Status
-              </th>
-              <th style={{ borderBottom: "1px solid #1f2937", padding: "0.5rem" }}>
-                Total
-              </th>
-              <th style={{ borderBottom: "1px solid #1px2937", padding: "0.5rem" }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservas.map((r) => (
-              <tr key={r.id}>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  {r.canchaNombre || r.canchaId}
-                </td>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  {r.fechaInicio}
-                </td>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  {r.fechaFin}
-                </td>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  {r.estado}
-                </td>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  ${r.precioTotal}
-                </td>
-                <td
-                  style={{
-                    borderBottom: "1px solid #1f2937",
-                    padding: "0.5rem",
-                  }}
-                >
-                  {r.estado === "PENDIENTE" || r.estado === "CONFIRMADA" ? (
-                    <button
-                      onClick={() => handleCancel(r.id)}
-                      disabled={updatingId === r.id}
-                    >
-                      {updatingId === r.id ? "Cancelling..." : "Cancel"}
-                    </button>
-                  ) : (
-                    <span>-</span>
-                  )}
-                </td>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              fontSize: "0.95rem",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  backgroundColor: "#020617",
+                  borderBottom: "1px solid #1f2937",
+                }}
+              >
+                <th style={thStyle}>Field</th>
+                <th style={thStyle}>Start</th>
+                <th style={thStyle}>End</th>
+                <th style={thStyle}>Total</th>
+                <th style={thStyle}>Status</th>
+                <th style={thStyle}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reservas.map((r) => (
+                <tr
+                  key={r.id}
+                  style={{
+                    borderBottom: "1px solid #111827",
+                    backgroundColor: "#020617",
+                  }}
+                >
+                  <td style={tdStyle}>{r.canchaNombre}</td>
+                  <td style={tdStyle}>{formatDate(r.fechaInicio)}</td>
+                  <td style={tdStyle}>{formatDate(r.fechaFin)}</td>
+                  <td style={tdStyle}>${r.precioTotal}</td>
+                  <td style={tdStyle}>
+                    {STATUS_LABELS[r.estado] || r.estado}
+                  </td>
+                  <td style={tdStyle}>
+                    {r.estado !== "COMPLETADA" &&
+                      r.estado !== "CANCELADA" && (
+                        <button
+                          onClick={() => handleCancel(r.id)}
+                          disabled={cancelingId === r.id}
+                          style={{
+                            padding: "0.25rem 0.7rem",
+                            borderRadius: "999px",
+                            border: "none",
+                            fontSize: "0.8rem",
+                            cursor: cancelingId === r.id ? "wait" : "pointer",
+                            backgroundColor: "#dc2626",
+                            color: "#f9fafb",
+                          }}
+                        >
+                          {cancelingId === r.id ? "Cancelling..." : "Cancel"}
+                        </button>
+                      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );
 }
+
+const thStyle = {
+  textAlign: "left",
+  padding: "0.5rem 0.75rem",
+  fontWeight: 600,
+  fontSize: "0.9rem",
+};
+
+const tdStyle = {
+  padding: "0.5rem 0.75rem",
+  verticalAlign: "middle",
+};
