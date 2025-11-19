@@ -1,15 +1,23 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.js";
 
-// Pages
+// Pages públicas
 import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
+import HomePage from "../pages/misc/HomePage.jsx";
+import NotFoundPage from "../pages/misc/NotFoundPage.jsx";
+
+// Cliente
 import ClienteDashboard from "../pages/cliente/ClienteDashboard.jsx";
 import CanchaDetalle from "../pages/cliente/CanchaDetalle.jsx";
 import MisReservasPage from "../pages/cliente/MisReservasPage.jsx";
+
+// Admin
 import AdminDashboard from "../pages/admin/AdminDashboard.jsx";
-import HomePage from "../pages/misc/HomePage.jsx";
-import NotFoundPage from "../pages/misc/NotFoundPage.jsx";
+import AdminFieldsPage from "../pages/admin/AdminFieldsPage.jsx";
+import AdminReservationsPage from "../pages/admin/AdminReservationsPage.jsx";
+import AdminHorariosPage from "../pages/admin/AdminHorariosPage.jsx";
+import AdminUsersPage from "../pages/admin/AdminUsersPage.jsx";
 
 function RequireAuth({ children, allowedRoles }) {
   const { isAuthenticated, role, loading } = useAuth();
@@ -65,6 +73,7 @@ export default function AppRouter() {
         }
       />
 
+
       {/* Admin */}
       <Route
         path="/admin"
@@ -74,9 +83,42 @@ export default function AppRouter() {
           </RequireAuth>
         }
       />
+      <Route
+        path="/admin/canchas"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <AdminFieldsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin/reservas"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <AdminReservationsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin/horarios"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <AdminHorariosPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin/usuarios"
+        element={
+          <RequireAuth allowedRoles={["ADMIN"]}>
+            <AdminUsersPage />
+          </RequireAuth>
+        }
+      />
 
       {/* 404 */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
+
