@@ -1,96 +1,165 @@
+// frontend/src/pages/auth/LoginPage.jsx
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth.js";
+import { Link, useNavigate } from "react-router-dom";
+import axiosClient from "../../api/axiosClient";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("miguel.paez@test.com"); // para probar rápido
+  const [email, setEmail] = useState("miguel.paez@test.com");
   const [password, setPassword] = useState("123456");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
+    setError("");
+    setSubmitting(true);
+
     try {
-      const data = await login(email, password);
+      const res = await axiosClient.post("/api/auth/login", {
+        email,
+        password,
+      });
 
-      console.log("Login OK, data from backend:", data);
+      const { token, rol, usuarioId } = res.data;
 
-      if (data.rol === "ADMIN") {
-        navigate("/admin", { replace: true });
+      // Guardar en contexto + localStorage
+      login(token, rol, usuarioId);
+
+      // Redirigir según rol
+      if (rol === "ADMIN") {
+        navigate("/admin");
+      } else if (rol === "CLIENTE") {
+        navigate("/cliente");
       } else {
-        navigate("/cliente", { replace: true });
+        navigate("/");
       }
     } catch (err) {
       console.error("Login error:", err);
 
       if (err.response) {
-        const { status, data } = err.response;
-
-        if (status === 401) {
+        // El backend respondió con error (4xx/5xx)
+        if (err.response.status === 400 || err.response.status === 401) {
           setError("Invalid email or password.");
-        } else if (status === 400) {
-          setError(
-            data?.message || "Bad request. Please check the submitted data."
-          );
         } else {
+          console.error("Backend error data:", err.response.data);
           setError(
-            data?.message ||
-              `Server error (${status}). Please try again or check the backend.`
+            `Unexpected error (${err.response.status}). Try again later.`
           );
         }
-      } else if (err.request) {
-        setError("Cannot reach the server. Is the backend running on :8080?");
       } else {
-        setError("Unexpected error while trying to login.");
+        // Error de red / CORS / backend caído
+        setError("Network error. Check if backend (port 8080) is running.");
       }
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "400px", margin: "0 auto" }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            autoComplete="email"
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        paddingTop: "4rem",
+        backgroundColor: "#020617",
+        color: "#f9fafb",
+      }}
+    >
+      <section
+        style={{
+          width: "100%",
+          maxWidth: "480px",
+          backgroundColor: "#020617",
+          padding: "2rem",
+          borderRadius: "0.75rem",
+        }}
+      >
+        <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Login</h1>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            autoComplete="current-password"
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="email"
+              style={{ display: "block", marginBottom: "0.25rem" }}
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.5rem 0.75rem",
+                borderRadius: "0.375rem",
+                border: "1px solid #4b5563",
+                backgroundColor: "#020617",
+                color: "#e5e7eb",
+              }}
+            />
+          </div>
 
-        {error && (
-          <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>
-        )}
+          <div style={{ marginBottom: "1rem" }}>
+            <label
+              htmlFor="password"
+              style={{ display: "block", marginBottom: "0.25rem" }}
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "0.5rem 0.75rem",
+                borderRadius: "0.375rem",
+                border: "1px solid #4b5563",
+                backgroundColor: "#020617",
+                color: "#e5e7eb",
+              }}
+            />
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          {error && (
+            <p style={{ color: "#f97373", marginBottom: "0.75rem" }}>{error}</p>
+          )}
 
-      <p style={{ marginTop: "1rem" }}>
-        Don&apos;t have an account? <Link to="/register">Register</Link>
-      </p>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              padding: "0.5rem 1.5rem",
+              borderRadius: "999px",
+              border: "none",
+              backgroundColor: submitting ? "#16a34a88" : "#16a34a",
+              color: "#0b1120",
+              fontWeight: 600,
+              cursor: submitting ? "not-allowed" : "pointer",
+            }}
+          >
+            {submitting ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        <p style={{ marginTop: "1rem" }}>
+          Don't have an account?{" "}
+          <Link to="/register" style={{ color: "#38bdf8" }}>
+            Register
+          </Link>
+        </p>
+      </section>
     </main>
   );
 }
+

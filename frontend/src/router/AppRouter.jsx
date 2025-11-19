@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth.js";
+import { useAuth } from "../hooks/useAuth";
+
 
 // Pages públicas
 import LoginPage from "../pages/auth/LoginPage.jsx";

@@ -11,11 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins(
-                        "http://localhost:3000",  // React con CRA u otros
-                        "http://localhost:8080",  // por si sirves algo desde el backend
-                        "http://localhost:5173"   // Vite (muy probable que lo uses)
-                        // Cuando tengas frontend en producción, agregas algo tipo:
-                        // "https://sgc-ultimate-frontend.vercel.app"
+                        "http://localhost:5173",  // Vite principal
+                        "http://localhost:5174",  // Vite en segundo puerto
+                        "http://localhost:3000",  // CRA
+                        "http://localhost:8080"   // backend opcional
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

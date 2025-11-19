@@ -1,3 +1,4 @@
+// frontend/src/api/axiosClient.js
 import axios from "axios";
 
 const axiosClient = axios.create({
@@ -5,7 +6,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

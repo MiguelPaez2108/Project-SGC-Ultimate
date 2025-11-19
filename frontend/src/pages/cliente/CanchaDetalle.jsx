@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
-import { useAuth } from "../../hooks/useAuth.js";
+import { useAuth } from "../../hooks/useAuth.jsx";
+
 
 function addMinutesToTime(timeStr, minutesToAdd) {
   // timeStr: "HH:MM"
