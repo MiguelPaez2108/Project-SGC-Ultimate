@@ -31,6 +31,12 @@ public class PagoController {
         return ResponseEntity.ok(pagoService.listarPorReserva(reservaId));
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    @Operation(summary = "Listar pagos por usuario")
+    public ResponseEntity<List<PagoResponseDTO>> listarPorUsuario(@PathVariable String usuarioId) {
+        return ResponseEntity.ok(pagoService.listarPorUsuario(usuarioId));
+    }
+
     // En tu SecurityConfig ya pusiste que SOLO ADMIN puede crear/gestionar pagos
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")

@@ -1,0 +1,129 @@
+.pagos-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.pagos-header {
+    margin-bottom: 2rem;
+}
+
+.pagos-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+}
+
+.pagos-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pagos-filters {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 300px;
+}
+
+.filter-item label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--gray-900);
+    background: white;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.pagos-content {
+    min-height: 400px;
+}
+
+.pagos-count {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.pagos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.pagos-loading,
+.pagos-error,
+.pagos-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.pagos-loading p,
+.pagos-empty p {
+    margin: 1rem 0 0 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.empty-subtitle {
+    font-size: 0.875rem !important;
+    color: var(--gray-400) !important;
+    margin-top: 0.5rem !important;
+}
+
+.pagos-error {
+    color: var(--error);
+}
+
+.error-message {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pagos-grid {
+        grid-template-columns: 1fr;
+    }
+}

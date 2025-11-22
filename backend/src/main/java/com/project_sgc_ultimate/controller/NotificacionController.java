@@ -23,6 +23,19 @@ public class NotificacionController {
 
     private final NotificacionService notificacionService;
 
+    @GetMapping
+    @Operation(summary = "Listar todas las notificaciones")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de notificaciones obtenida exitosamente")
+    })
+    public ResponseEntity<List<NotificacionResponseDTO>> listarTodas() {
+        List<Notificacion> notificaciones = notificacionService.listarTodas();
+        List<NotificacionResponseDTO> respuesta = notificaciones.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(respuesta);
+    }
+
     @GetMapping("/por-usuario/{usuarioId}")
     @Operation(summary = "Listar notificaciones por usuario")
     @ApiResponses(value = {

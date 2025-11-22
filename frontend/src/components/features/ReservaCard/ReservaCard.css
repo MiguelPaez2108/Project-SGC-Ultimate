@@ -1,0 +1,98 @@
+.reserva-card {
+    transition: all var(--transition-base);
+}
+
+.reserva-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.reserva-card-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.reserva-card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.reserva-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.reserva-card-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.reserva-card-badge--success {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.reserva-card-badge--warning {
+    background: var(--warning-light);
+    color: var(--warning-dark);
+}
+
+.reserva-card-badge--error {
+    background: var(--error-light);
+    color: var(--error-dark);
+}
+
+.reserva-card-badge--info {
+    background: var(--info-light);
+    color: var(--info-dark);
+}
+
+.reserva-card-body {
+    padding-top: 1rem;
+}
+
+.reserva-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.reserva-card-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.reserva-card-detail svg {
+    width: 18px;
+    height: 18px;
+    color: var(--primary-600);
+}
+
+.reserva-card-price {
+    font-weight: 700;
+    color: var(--gray-900);
+    font-size: 1rem;
+}
+
+.reserva-card-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+    .reserva-card-actions {
+        flex-direction: column;
+    }
+}

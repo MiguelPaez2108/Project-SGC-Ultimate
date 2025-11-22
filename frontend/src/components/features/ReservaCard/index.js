@@ -1,0 +1,1 @@
+export { ReservaCard } from './ReservaCard';

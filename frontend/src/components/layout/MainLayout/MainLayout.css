@@ -1,0 +1,32 @@
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--gray-50);
+}
+
+.main-layout-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.main-layout-body {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+    .main-layout-content {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .main-layout-body {
+        padding: 1rem;
+    }
+}

@@ -5,7 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
@@ -17,44 +17,44 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
-    private Key getSigningKey() {
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generarToken(String email, String rol) {
         return Jwts.builder()
-                .setSubject(email)
+                .subject(email)
                 .claim("rol", rol)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(getSigningKey())
                 .compact();
     }
 
     public String obtenerEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
     public String obtenerRol(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .get("rol", String.class);
     }
 
     public boolean validar(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException e) {
             return false;
@@ -63,11 +63,11 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token) {
         try {
-            Date expiration = Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            Date expiration = Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getExpiration();
             return expiration.before(new Date());
         } catch (JwtException e) {
@@ -75,4 +75,3 @@ public class JwtUtil {
         }
     }
 }
-

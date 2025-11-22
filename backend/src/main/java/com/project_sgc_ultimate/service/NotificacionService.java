@@ -20,6 +20,10 @@ public class NotificacionService {
     private final NotificacionRepository notificacionRepository;
     private final AuditoriaService auditoriaService;
 
+    public List<Notificacion> listarTodas() {
+        return notificacionRepository.findAll();
+    }
+
     public List<Notificacion> listarPorUsuario(String usuarioId) {
         return notificacionRepository.findByUsuarioIdOrderByFechaEnvioDesc(usuarioId);
     }

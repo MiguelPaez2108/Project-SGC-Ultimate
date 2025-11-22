@@ -1,0 +1,126 @@
+.profile-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    margin-bottom: 2rem;
+}
+
+.profile-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+}
+
+.profile-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-card {
+    padding: 2rem;
+}
+
+.profile-avatar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.avatar-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-600), var(--secondary-600));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.field-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-600);
+    flex-shrink: 0;
+}
+
+.field-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.field-content {
+    flex: 1;
+}
+
+.field-label {
+    font-size: 0.75rem;
+    color: var(--gray-600);
+    margin: 0 0 0.25rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.field-value {
+    font-size: 1rem;
+    color: var(--gray-900);
+    font-weight: 600;
+    margin: 0;
+    word-break: break-all;
+}
+
+.settings-card {
+    padding: 2rem;
+}
+
+.settings-message {
+    color: var(--gray-600);
+    text-align: center;
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .profile-card {
+        padding: 1.5rem;
+    }
+
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        font-size: 2.5rem;
+    }
+}

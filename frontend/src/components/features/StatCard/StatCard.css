@@ -1,0 +1,69 @@
+.stat-card-component {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.stat-card-component:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stat-card-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: var(--gray-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.stat-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-card-label {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+}
+
+.stat-card-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.stat-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.stat-card-change {
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.stat-card-change--up {
+    color: var(--success);
+    background: var(--success-light);
+}
+
+.stat-card-change--down {
+    color: var(--error);
+    background: var(--error-light);
+}

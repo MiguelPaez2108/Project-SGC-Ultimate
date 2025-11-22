@@ -1,0 +1,125 @@
+.notificaciones-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.notificaciones-header {
+    margin-bottom: 2rem;
+}
+
+.notificaciones-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+}
+
+.notificaciones-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.notificaciones-content {
+    min-height: 400px;
+}
+
+.notificaciones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notificacion-card {
+    padding: 1.5rem;
+    transition: all var(--transition-base);
+}
+
+.notificacion-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.notificacion-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.notificacion-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-100);
+    color: var(--primary-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notificacion-info {
+    flex: 1;
+}
+
+.notificacion-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 0.25rem 0;
+}
+
+.notificacion-date {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin: 0;
+}
+
+.notificacion-read {
+    color: var(--success);
+}
+
+.notificacion-mensaje {
+    color: var(--gray-700);
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+}
+
+.notificacion-meta {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.notificacion-tipo {
+    padding: 0.25rem 0.75rem;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.notificaciones-loading,
+.notificaciones-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.notificaciones-loading p,
+.notificaciones-empty p {
+    margin: 1rem 0 0 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.empty-subtitle {
+    font-size: 0.875rem !important;
+    color: var(--gray-400) !important;
+    margin-top: 0.5rem !important;
+}

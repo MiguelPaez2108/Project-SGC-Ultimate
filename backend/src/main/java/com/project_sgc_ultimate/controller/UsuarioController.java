@@ -57,6 +57,16 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/activo")
+    public ResponseEntity<UsuarioResponseDTO> actualizarActivo(
+            @PathVariable String id,
+            @RequestBody java.util.Map<String, Boolean> body
+    ) {
+        Boolean activo = body.get("activo");
+        Usuario actualizado = usuarioService.actualizarActivo(id, activo);
+        return ResponseEntity.ok(mapToResponseDto(actualizado));
+    }
+
     // ====== Mapeo interno entidad → DTO ======
 
     private UsuarioResponseDTO mapToResponseDto(Usuario usuario) {

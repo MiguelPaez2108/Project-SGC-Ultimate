@@ -98,6 +98,12 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    public Usuario actualizarActivo(String id, Boolean activo) {
+        Usuario usuario = obtenerPorId(id);
+        usuario.setActivo(activo);
+        return usuarioRepository.save(usuario);
+    }
+
     public void eliminar(String id) {
         if (!usuarioRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");

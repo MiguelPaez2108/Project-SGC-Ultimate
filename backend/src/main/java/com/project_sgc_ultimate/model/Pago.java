@@ -18,6 +18,8 @@ public class Pago {
     private String id;
 
     private String reservaId;
+    
+    private String usuarioId;
 
     private BigDecimal monto;
 

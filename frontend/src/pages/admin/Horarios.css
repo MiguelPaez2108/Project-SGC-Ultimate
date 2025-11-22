@@ -1,0 +1,157 @@
+.horarios-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.horarios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.horarios-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 0 0 0.5rem 0;
+}
+
+.horarios-subtitle {
+    color: var(--gray-600);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.horarios-filters-card,
+.horarios-form-card {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+.horarios-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.horarios-content {
+    min-height: 400px;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.dia-card {
+    padding: 1.5rem;
+}
+
+.dia-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.horarios-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.horario-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+}
+
+.horario-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-700);
+    font-size: 0.875rem;
+}
+
+.horario-time svg {
+    color: var(--primary-600);
+}
+
+.no-horarios {
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 0.875rem;
+    padding: 1rem;
+}
+
+.horarios-loading,
+.horarios-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--gray-500);
+}
+
+.horarios-loading p,
+.horarios-empty p {
+    margin: 1rem 0 0 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.empty-subtitle {
+    font-size: 0.875rem !important;
+    color: var(--gray-400) !important;
+    margin-top: 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+    .horarios-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .horarios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+}

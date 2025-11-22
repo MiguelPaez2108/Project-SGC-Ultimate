@@ -31,6 +31,13 @@ public class PagoService {
                 .toList();
     }
 
+    public List<PagoResponseDTO> listarPorUsuario(String usuarioId) {
+        List<Pago> pagos = pagoRepository.findByUsuarioId(usuarioId);
+        return pagos.stream()
+                .map(PagoResponseDTO::fromEntity)
+                .toList();
+    }
+
     public PagoResponseDTO obtenerPorId(String id) {
         Pago pago = pagoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -75,6 +82,7 @@ public class PagoService {
 
         Pago pago = Pago.builder()
                 .reservaId(reserva.getId())
+                .usuarioId(reserva.getUsuarioId())
                 .monto(dto.getMonto())
                 .metodo(metodo)
                 .estado(Pago.EstadoPago.PAGADO)

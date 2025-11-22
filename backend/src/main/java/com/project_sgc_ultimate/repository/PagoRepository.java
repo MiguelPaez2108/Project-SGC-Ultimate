@@ -10,5 +10,7 @@ public interface PagoRepository extends MongoRepository<Pago, String> {
 
     List<Pago> findByReservaId(String reservaId);
 
+    List<Pago> findByUsuarioId(String usuarioId);
+
     boolean existsByReservaIdAndEstado(String reservaId, EstadoPago estado);
 }
