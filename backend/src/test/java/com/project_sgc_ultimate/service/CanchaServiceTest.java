@@ -1,6 +1,7 @@
 package com.project_sgc_ultimate.service;
 
 import com.project_sgc_ultimate.dto.CanchaRequestDTO;
+import com.project_sgc_ultimate.model.Auditoria;
 import com.project_sgc_ultimate.model.Cancha;
 import com.project_sgc_ultimate.repository.CanchaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,19 +43,21 @@ class CanchaServiceTest {
         cancha = Cancha.builder()
                 .id("1")
                 .nombre("Cancha de Fútbol 1")
-                .tipo(Cancha.TipoCancha.FUTBOL)
+                .tipo(Cancha.TipoCancha.FUTBOL_5)
                 .ubicacion("Sector A")
-                .precioPorHora(50.0)
+                .precioPorHora(new BigDecimal("50.00"))
                 .estado(Cancha.EstadoCancha.ACTIVA)
                 .techada(false)
+                .imagenUrl("https://example.com/cancha1.jpg")
                 .build();
 
         canchaRequestDTO = new CanchaRequestDTO();
         canchaRequestDTO.setNombre("Cancha de Fútbol 1");
-        canchaRequestDTO.setTipo("FUTBOL");
+        canchaRequestDTO.setTipo("FUTBOL_5");
         canchaRequestDTO.setUbicacion("Sector A");
-        canchaRequestDTO.setPrecioPorHora(50.0);
+        canchaRequestDTO.setPrecioPorHora(new BigDecimal("50.00"));
         canchaRequestDTO.setTechada(false);
+        canchaRequestDTO.setImagenUrl("https://example.com/cancha1.jpg");
     }
 
     @Test
@@ -119,7 +124,7 @@ class CanchaServiceTest {
         // Arrange
         when(canchaRepository.findByNombreIgnoreCase(anyString())).thenReturn(Optional.empty());
         when(canchaRepository.save(any(Cancha.class))).thenReturn(cancha);
-        doNothing().when(auditoriaService).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        doNothing().when(auditoriaService).registrar(anyString(), anyString(), any(), any(Auditoria.Accion.class), anyString());
 
         // Act
         Cancha result = canchaService.crearDesdeDto(canchaRequestDTO);
@@ -129,7 +134,7 @@ class CanchaServiceTest {
         assertEquals("Cancha de Fútbol 1", result.getNombre());
         verify(canchaRepository, times(1)).findByNombreIgnoreCase(anyString());
         verify(canchaRepository, times(1)).save(any(Cancha.class));
-        verify(auditoriaService, times(1)).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        verify(auditoriaService, times(1)).registrar(eq("Cancha"), anyString(), any(), eq(Auditoria.Accion.CREACION), anyString());
     }
 
     @Test
@@ -150,10 +155,10 @@ class CanchaServiceTest {
         // Arrange
         when(canchaRepository.findById("1")).thenReturn(Optional.of(cancha));
         when(canchaRepository.save(any(Cancha.class))).thenReturn(cancha);
-        doNothing().when(auditoriaService).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        doNothing().when(auditoriaService).registrar(anyString(), anyString(), any(), any(Auditoria.Accion.class), anyString());
 
         canchaRequestDTO.setNombre("Cancha Actualizada");
-        canchaRequestDTO.setPrecioPorHora(60.0);
+        canchaRequestDTO.setPrecioPorHora(new BigDecimal("60.00"));
 
         // Act
         Cancha result = canchaService.actualizarDesdeDto("1", canchaRequestDTO);
@@ -162,7 +167,7 @@ class CanchaServiceTest {
         assertNotNull(result);
         verify(canchaRepository, times(1)).findById("1");
         verify(canchaRepository, times(1)).save(any(Cancha.class));
-        verify(auditoriaService, times(1)).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        verify(auditoriaService, times(1)).registrar(eq("Cancha"), eq("1"), any(), eq(Auditoria.Accion.ACTUALIZACION), anyString());
     }
 
     @Test
@@ -183,7 +188,7 @@ class CanchaServiceTest {
         // Arrange
         when(canchaRepository.findById("1")).thenReturn(Optional.of(cancha));
         when(canchaRepository.save(any(Cancha.class))).thenReturn(cancha);
-        doNothing().when(auditoriaService).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        doNothing().when(auditoriaService).registrar(anyString(), anyString(), any(), any(Auditoria.Accion.class), anyString());
 
         // Act
         canchaService.eliminar("1");
@@ -191,7 +196,7 @@ class CanchaServiceTest {
         // Assert
         verify(canchaRepository, times(1)).findById("1");
         verify(canchaRepository, times(1)).save(any(Cancha.class));
-        verify(auditoriaService, times(1)).registrar(anyString(), anyString(), anyString(), any(), anyString());
+        verify(auditoriaService, times(1)).registrar(eq("Cancha"), eq("1"), any(), eq(Auditoria.Accion.ELIMINACION), anyString());
     }
 
     @Test
