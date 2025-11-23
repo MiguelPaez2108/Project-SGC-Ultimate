@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface HorarioRepository extends MongoRepository<Horario, String> {
 
+    List<Horario> findByCanchaId(String canchaId);
+
     List<Horario> findByCanchaIdAndActivoTrue(String canchaId);
 
     // OJO: aquí usamos Horario.DiaSemana, NO DayOfWeek

@@ -47,6 +47,7 @@ public class CanchaService {
                 .precioPorHora(dto.getPrecioPorHora())
                 .estado(Cancha.EstadoCancha.ACTIVA)
                 .techada(dto.getTechada())
+                .imagenUrl(dto.getImagenUrl())
                 .build();
 
         Cancha creada = canchaRepository.save(cancha);
@@ -67,6 +68,7 @@ public class CanchaService {
         existente.setUbicacion(dto.getUbicacion());
         existente.setPrecioPorHora(dto.getPrecioPorHora());
         existente.setTechada(dto.getTechada());
+        existente.setImagenUrl(dto.getImagenUrl());
 
         Cancha actualizada = canchaRepository.save(existente);
 

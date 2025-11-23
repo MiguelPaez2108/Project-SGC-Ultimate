@@ -85,6 +85,14 @@ public class HorarioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/reinicializar")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Reinicializar todos los horarios con valores variados")
+    public ResponseEntity<String> reinicializarHorarios() {
+        horarioService.reinicializarHorarios();
+        return ResponseEntity.ok("Horarios reinicializados exitosamente con valores variados");
+    }
+
    
     // MAPEO A DTO  (NO BORRAR)
   

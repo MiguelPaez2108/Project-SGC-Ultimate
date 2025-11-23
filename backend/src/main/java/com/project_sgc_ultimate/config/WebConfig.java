@@ -16,7 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000",  // CRA
                         "http://localhost:8080"   // backend opcional
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

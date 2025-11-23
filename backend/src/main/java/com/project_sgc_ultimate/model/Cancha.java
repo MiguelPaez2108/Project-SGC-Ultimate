@@ -38,6 +38,8 @@ public class Cancha {
     private EstadoCancha estado;
 
     private Boolean techada;      // true/false si es techada
+    
+    private String imagenUrl;     // URL de la imagen de la cancha
 
     public enum TipoCancha {
         FUTSAL,

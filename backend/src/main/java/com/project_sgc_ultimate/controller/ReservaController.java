@@ -78,6 +78,20 @@ public class ReservaController {
 
     @PostMapping
     public ResponseEntity<ReservaResponseDTO> crear(@RequestBody ReservaRequestDTO dto) {
+        // Si no viene el usuarioId, lo tomamos del usuario autenticado
+        if (dto.getUsuarioId() == null || dto.getUsuarioId().isEmpty()) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                String email = auth.getName();
+                Usuario usuario = usuarioRepository.findByEmailIgnoreCase(email)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Usuario autenticado no encontrado"
+                        ));
+                dto.setUsuarioId(usuario.getId());
+            }
+        }
+
         Reserva creada = reservaService.crearDesdeDto(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToResponseDto(creada));
     }
@@ -101,8 +115,8 @@ public class ReservaController {
 
     private ReservaResponseDTO mapToResponseDto(Reserva reserva) {
 
-        Cancha cancha = canchaRepository.findById(reserva.getCanchaId()).orElse(null);
-        Usuario usuario = usuarioRepository.findById(reserva.getUsuarioId()).orElse(null);
+        Cancha cancha = reserva.getCanchaId() != null ? canchaRepository.findById(reserva.getCanchaId()).orElse(null) : null;
+        Usuario usuario = reserva.getUsuarioId() != null ? usuarioRepository.findById(reserva.getUsuarioId()).orElse(null) : null;
 
         String canchaNombre = cancha != null ? cancha.getNombre() : "Desconocida";
         String usuarioNombre = usuario != null ? usuario.getNombreCompleto() : "Desconocido";

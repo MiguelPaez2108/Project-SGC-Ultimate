@@ -110,6 +110,7 @@ public class CanchaController {
                 .precioPorHora(cancha.getPrecioPorHora())
                 .estado(cancha.getEstado() != null ? cancha.getEstado().name() : null)
                 .techada(cancha.getTechada())
+                .imagenUrl(cancha.getImagenUrl())
                 .build();
     }
 }

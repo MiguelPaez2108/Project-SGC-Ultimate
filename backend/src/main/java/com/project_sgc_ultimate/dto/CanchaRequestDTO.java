@@ -22,4 +22,6 @@ public class CanchaRequestDTO {
     private BigDecimal precioPorHora;
 
     private Boolean techada;
+    
+    private String imagenUrl;
 }

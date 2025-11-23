@@ -15,4 +15,5 @@ public class CanchaResponseDTO {
     private BigDecimal precioPorHora;
     private String estado;
     private Boolean techada;
+    private String imagenUrl;
 }
