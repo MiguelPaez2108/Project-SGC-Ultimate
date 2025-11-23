@@ -1,60 +1,33 @@
 # API Documentation - SGC Ultimate Backend
 
-Documentación completa de la API REST del Sistema de Gestión de Canchas.
+Documentación detallada de los endpoints de la API REST.
 
-## 📋 Tabla de Contenidos
+## 📋 Información General
 
-- [Información General](#información-general)
-- [Autenticación](#autenticación)
-- [Endpoints](#endpoints)
-  - [Auth](#auth)
-  - [Canchas](#canchas)
-  - [Reservas](#reservas)
-  - [Usuarios](#usuarios)
-  - [Pagos](#pagos)
-  - [Horarios](#horarios)
-  - [Notificaciones](#notificaciones)
-  - [Auditoría](#auditoría)
-- [Códigos de Estado](#códigos-de-estado)
-- [Ejemplos de Uso](#ejemplos-de-uso)
+- **Base URL**: `http://localhost:8080/api`
+- **Formato**: JSON
+- **Autenticación**: JWT Bearer Token
+- **Documentación Interactiva**: `http://localhost:8080/swagger-ui.html`
 
-## 🌐 Información General
+## 🔐 Autenticación
 
-### Base URL
-```
-http://localhost:8080/api
-```
+Todos los endpoints (excepto login y register) requieren un token JWT en el header:
 
-### Formato de Respuesta
-Todas las respuestas están en formato JSON.
-
-### Headers Requeridos
-```
-Content-Type: application/json
-Accept: application/json
-```
-
-### Autenticación
-La mayoría de endpoints requieren autenticación JWT. Incluir el token en el header:
 ```
 Authorization: Bearer <token>
 ```
 
-## 🔐 Autenticación
+### POST /auth/register
 
-### Registrar Usuario
-
-**POST** `/auth/register`
-
-Registra un nuevo usuario en el sistema.
+Registrar un nuevo usuario.
 
 **Request Body:**
 ```json
 {
-  "nombre": "Juan Pérez",
+  "nombreCompleto": "Juan Pérez",
   "email": "juan@example.com",
   "password": "password123",
-  "telefono": "987654321"
+  "telefono": "123456789"
 }
 ```
 
@@ -62,22 +35,20 @@ Registra un nuevo usuario en el sistema.
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "usuario": {
-    "id": "507f1f77bcf86cd799439011",
-    "nombre": "Juan Pérez",
-    "email": "juan@example.com",
-    "rol": "CLIENTE",
-    "telefono": "987654321",
-    "activo": true
-  }
+  "usuarioId": "507f1f77bcf86cd799439011",
+  "rol": "CLIENTE"
 }
 ```
 
-### Iniciar Sesión
+**Errores:**
+- `400 Bad Request` - Datos inválidos
+- `409 Conflict` - Email ya registrado
 
-**POST** `/auth/login`
+---
 
-Autentica un usuario y devuelve un token JWT.
+### POST /auth/login
+
+Iniciar sesión.
 
 **Request Body:**
 ```json
@@ -91,115 +62,85 @@ Autentica un usuario y devuelve un token JWT.
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "usuario": {
-    "id": "507f1f77bcf86cd799439011",
-    "nombre": "Juan Pérez",
-    "email": "juan@example.com",
-    "rol": "CLIENTE"
-  }
+  "usuarioId": "507f1f77bcf86cd799439011",
+  "rol": "CLIENTE"
 }
 ```
 
-### Obtener Usuario Actual
+**Errores:**
+- `401 Unauthorized` - Credenciales inválidas
+- `403 Forbidden` - Usuario inactivo
 
-**GET** `/auth/me`
+---
 
-Obtiene la información del usuario autenticado.
+## 🏟️ Canchas
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+### GET /canchas
 
-**Response:** `200 OK`
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "nombre": "Juan Pérez",
-  "email": "juan@example.com",
-  "rol": "CLIENTE",
-  "telefono": "987654321",
-  "activo": true
-}
-```
-
-## ⚽ Canchas
-
-### Listar Canchas
-
-**GET** `/canchas`
-
-Obtiene la lista de todas las canchas.
+Listar todas las canchas.
 
 **Query Parameters:**
-- `tipo` (opcional): Filtrar por tipo (FUTBOL, FUTBOL_5, FUTBOL_7, BASQUET, etc.)
+- `tipo` (opcional): Filtrar por tipo de cancha
 - `disponible` (opcional): Filtrar por disponibilidad (true/false)
-- `page` (opcional): Número de página (default: 0)
-- `size` (opcional): Tamaño de página (default: 10)
 
 **Response:** `200 OK`
 ```json
-{
-  "content": [
-    {
-      "id": "507f1f77bcf86cd799439011",
-      "nombre": "Cancha Principal",
-      "tipo": "FUTBOL_7",
-      "descripcion": "Cancha de césped sintético",
-      "precioHora": 80.00,
-      "capacidad": 14,
-      "techada": false,
-      "disponible": true,
-      "imagenes": ["url1.jpg", "url2.jpg"]
-    }
-  ],
-  "totalElements": 10,
-  "totalPages": 1,
-  "size": 10,
-  "number": 0
-}
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "nombre": "Cancha de Fútbol 1",
+    "tipo": "Fútbol",
+    "capacidad": 22,
+    "precioPorHora": 50.0,
+    "disponible": true,
+    "descripcion": "Cancha profesional",
+    "ubicacion": "Sector A",
+    "caracteristicas": ["Césped sintético", "Iluminación"]
+  }
+]
 ```
 
-### Obtener Cancha por ID
+---
 
-**GET** `/canchas/{id}`
+### GET /canchas/{id}
 
-Obtiene los detalles de una cancha específica.
+Obtener detalles de una cancha específica.
 
 **Response:** `200 OK`
 ```json
 {
   "id": "507f1f77bcf86cd799439011",
-  "nombre": "Cancha Principal",
-  "tipo": "FUTBOL_7",
-  "descripcion": "Cancha de césped sintético de alta calidad",
-  "precioHora": 80.00,
-  "capacidad": 14,
-  "techada": false,
+  "nombre": "Cancha de Fútbol 1",
+  "tipo": "Fútbol",
+  "capacidad": 22,
+  "precioPorHora": 50.0,
   "disponible": true,
-  "imagenes": ["url1.jpg", "url2.jpg"],
-  "caracteristicas": ["Iluminación LED", "Vestuarios", "Estacionamiento"]
+  "descripcion": "Cancha profesional",
+  "ubicacion": "Sector A",
+  "caracteristicas": ["Césped sintético", "Iluminación"]
 }
 ```
 
-### Crear Cancha
+**Errores:**
+- `404 Not Found` - Cancha no encontrada
 
-**POST** `/canchas` 🔒 *Requiere rol ADMIN*
+---
 
-Crea una nueva cancha.
+### POST /canchas
+
+Crear una nueva cancha. **[ADMIN]**
 
 **Request Body:**
 ```json
 {
-  "nombre": "Cancha Nueva",
-  "tipo": "FUTBOL_5",
-  "descripcion": "Cancha techada con césped sintético",
-  "precioHora": 60.00,
-  "capacidad": 10,
-  "techada": true,
+  "nombre": "Cancha de Fútbol 2",
+  "tipo": "Fútbol",
+  "capacidad": 22,
+  "precioPorHora": 55.0,
   "disponible": true,
-  "imagenes": ["url1.jpg"],
-  "caracteristicas": ["Techada", "Iluminación"]
+  "descripcion": "Nueva cancha",
+  "ubicacion": "Sector B",
+  "caracteristicas": ["Césped natural", "Iluminación LED"]
 }
 ```
 
@@ -207,176 +148,215 @@ Crea una nueva cancha.
 ```json
 {
   "id": "507f1f77bcf86cd799439012",
-  "nombre": "Cancha Nueva",
-  "tipo": "FUTBOL_5",
-  "precioHora": 60.00,
-  "disponible": true
+  "nombre": "Cancha de Fútbol 2",
+  ...
 }
 ```
 
-### Actualizar Cancha
+**Errores:**
+- `400 Bad Request` - Datos inválidos
+- `403 Forbidden` - No autorizado (requiere rol ADMIN)
 
-**PUT** `/canchas/{id}` 🔒 *Requiere rol ADMIN*
+---
 
-Actualiza una cancha existente.
+### PUT /canchas/{id}
+
+Actualizar una cancha. **[ADMIN]**
 
 **Request Body:**
 ```json
 {
-  "nombre": "Cancha Actualizada",
-  "precioHora": 70.00,
-  "disponible": true
+  "nombre": "Cancha de Fútbol 1 - Actualizada",
+  "precioPorHora": 60.0,
+  "disponible": false
 }
 ```
 
 **Response:** `200 OK`
 
-### Eliminar Cancha
+**Errores:**
+- `404 Not Found` - Cancha no encontrada
+- `403 Forbidden` - No autorizado
 
-**DELETE** `/canchas/{id}` 🔒 *Requiere rol ADMIN*
+---
 
-Elimina una cancha del sistema.
+### DELETE /canchas/{id}
+
+Eliminar una cancha. **[ADMIN]**
 
 **Response:** `204 No Content`
 
+**Errores:**
+- `404 Not Found` - Cancha no encontrada
+- `403 Forbidden` - No autorizado
+- `409 Conflict` - Cancha tiene reservas activas
+
+---
+
 ## 📅 Reservas
 
-### Listar Mis Reservas
+### GET /reservas
 
-**GET** `/reservas`
-
-Obtiene las reservas del usuario autenticado.
+Listar reservas del usuario actual.
 
 **Query Parameters:**
 - `estado` (opcional): Filtrar por estado (PENDIENTE, CONFIRMADA, CANCELADA, COMPLETADA)
-- `fechaDesde` (opcional): Fecha desde (ISO 8601)
-- `fechaHasta` (opcional): Fecha hasta (ISO 8601)
+- `desde` (opcional): Fecha desde (ISO 8601)
+- `hasta` (opcional): Fecha hasta (ISO 8601)
 
 **Response:** `200 OK`
 ```json
 [
   {
-    "id": "507f1f77bcf86cd799439011",
-    "cancha": {
-      "id": "507f1f77bcf86cd799439012",
-      "nombre": "Cancha Principal"
-    },
-    "fechaInicio": "2024-01-20T18:00:00Z",
-    "fechaFin": "2024-01-20T19:00:00Z",
+    "id": "507f1f77bcf86cd799439013",
+    "usuarioId": "507f1f77bcf86cd799439011",
+    "canchaId": "507f1f77bcf86cd799439012",
+    "fechaInicio": "2024-01-20T10:00:00",
+    "fechaFin": "2024-01-20T12:00:00",
     "estado": "CONFIRMADA",
-    "precioTotal": 80.00,
+    "precioTotal": 100.0,
     "observaciones": "Reserva para partido amistoso"
   }
 ]
 ```
 
-### Obtener Reserva por ID
+---
 
-**GET** `/reservas/{id}`
+### GET /reservas/{id}
 
-Obtiene los detalles de una reserva específica.
+Obtener detalles de una reserva.
 
 **Response:** `200 OK`
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "usuario": {
-    "id": "507f1f77bcf86cd799439013",
-    "nombre": "Juan Pérez"
-  },
-  "cancha": {
-    "id": "507f1f77bcf86cd799439012",
-    "nombre": "Cancha Principal",
-    "tipo": "FUTBOL_7"
-  },
-  "fechaInicio": "2024-01-20T18:00:00Z",
-  "fechaFin": "2024-01-20T19:00:00Z",
-  "estado": "CONFIRMADA",
-  "precioTotal": 80.00,
-  "observaciones": "Reserva para partido amistoso",
-  "fechaCreacion": "2024-01-15T10:00:00Z"
-}
-```
 
-### Crear Reserva
+**Errores:**
+- `404 Not Found` - Reserva no encontrada
+- `403 Forbidden` - No autorizado para ver esta reserva
 
-**POST** `/reservas`
+---
 
-Crea una nueva reserva.
+### POST /reservas
+
+Crear una nueva reserva.
 
 **Request Body:**
 ```json
 {
   "canchaId": "507f1f77bcf86cd799439012",
-  "fechaInicio": "2024-01-20T18:00:00Z",
-  "fechaFin": "2024-01-20T19:00:00Z",
+  "fechaInicio": "2024-01-20T10:00:00",
+  "fechaFin": "2024-01-20T12:00:00",
   "observaciones": "Reserva para partido amistoso"
 }
 ```
 
 **Response:** `201 Created`
-```json
-{
-  "id": "507f1f77bcf86cd799439011",
-  "canchaId": "507f1f77bcf86cd799439012",
-  "fechaInicio": "2024-01-20T18:00:00Z",
-  "fechaFin": "2024-01-20T19:00:00Z",
-  "estado": "PENDIENTE",
-  "precioTotal": 80.00
-}
-```
 
-### Actualizar Reserva
+**Errores:**
+- `400 Bad Request` - Datos inválidos o cancha no disponible
+- `409 Conflict` - Horario ya reservado
 
-**PUT** `/reservas/{id}`
+---
 
-Actualiza una reserva existente.
+### PUT /reservas/{id}
+
+Actualizar una reserva.
 
 **Request Body:**
 ```json
 {
-  "fechaInicio": "2024-01-20T19:00:00Z",
-  "fechaFin": "2024-01-20T20:00:00Z",
+  "fechaInicio": "2024-01-20T14:00:00",
+  "fechaFin": "2024-01-20T16:00:00",
   "observaciones": "Cambio de horario"
 }
 ```
 
 **Response:** `200 OK`
 
-### Cancelar Reserva
+**Errores:**
+- `404 Not Found` - Reserva no encontrada
+- `403 Forbidden` - No autorizado
+- `409 Conflict` - Nuevo horario no disponible
 
-**DELETE** `/reservas/{id}`
+---
 
-Cancela una reserva.
+### DELETE /reservas/{id}
+
+Cancelar una reserva.
 
 **Response:** `204 No Content`
 
-### Verificar Disponibilidad
+**Errores:**
+- `404 Not Found` - Reserva no encontrada
+- `403 Forbidden` - No autorizado
+- `400 Bad Request` - No se puede cancelar (ya completada o muy próxima)
 
-**GET** `/reservas/disponibilidad`
+---
 
-Verifica la disponibilidad de una cancha en un horario específico.
+## 💳 Pagos
+
+### GET /pagos
+
+Listar pagos del usuario actual.
 
 **Query Parameters:**
-- `canchaId` (requerido): ID de la cancha
-- `fechaInicio` (requerido): Fecha y hora de inicio (ISO 8601)
-- `fechaFin` (requerido): Fecha y hora de fin (ISO 8601)
+- `estado` (opcional): Filtrar por estado (PENDIENTE, COMPLETADO, FALLIDO, REEMBOLSADO)
 
 **Response:** `200 OK`
 ```json
+[
+  {
+    "id": "507f1f77bcf86cd799439014",
+    "reservaId": "507f1f77bcf86cd799439013",
+    "monto": 100.0,
+    "metodoPago": "TARJETA",
+    "estado": "COMPLETADO",
+    "fechaPago": "2024-01-15T10:30:00",
+    "transaccionId": "TXN123456"
+  }
+]
+```
+
+---
+
+### POST /pagos
+
+Procesar un pago.
+
+**Request Body:**
+```json
 {
-  "disponible": true,
-  "mensaje": "La cancha está disponible en el horario solicitado"
+  "reservaId": "507f1f77bcf86cd799439013",
+  "monto": 100.0,
+  "metodoPago": "TARJETA"
 }
 ```
 
+**Response:** `201 Created`
+
+**Errores:**
+- `400 Bad Request` - Datos inválidos
+- `404 Not Found` - Reserva no encontrada
+- `409 Conflict` - Pago ya procesado
+
+---
+
+### PUT /pagos/{id}/confirmar
+
+Confirmar un pago. **[ADMIN]**
+
+**Response:** `200 OK`
+
+**Errores:**
+- `404 Not Found` - Pago no encontrado
+- `403 Forbidden` - No autorizado
+- `400 Bad Request` - Pago ya confirmado
+
+---
+
 ## 👥 Usuarios
 
-### Listar Usuarios
+### GET /usuarios
 
-**GET** `/usuarios` 🔒 *Requiere rol ADMIN*
-
-Obtiene la lista de todos los usuarios.
+Listar todos los usuarios. **[ADMIN]**
 
 **Query Parameters:**
 - `rol` (opcional): Filtrar por rol (ADMIN, CLIENTE)
@@ -387,122 +367,133 @@ Obtiene la lista de todos los usuarios.
 [
   {
     "id": "507f1f77bcf86cd799439011",
-    "nombre": "Juan Pérez",
+    "nombreCompleto": "Juan Pérez",
     "email": "juan@example.com",
+    "telefono": "123456789",
     "rol": "CLIENTE",
-    "telefono": "987654321",
     "activo": true,
-    "fechaRegistro": "2024-01-01T00:00:00Z"
+    "fechaRegistro": "2024-01-01T00:00:00"
   }
 ]
 ```
 
-### Obtener Usuario por ID
+---
 
-**GET** `/usuarios/{id}` 🔒 *Requiere rol ADMIN*
+### GET /usuarios/{id}
 
-Obtiene los detalles de un usuario específico.
+Obtener detalles de un usuario.
 
 **Response:** `200 OK`
 
-### Actualizar Usuario
+**Errores:**
+- `404 Not Found` - Usuario no encontrado
+- `403 Forbidden` - No autorizado
 
-**PUT** `/usuarios/{id}` 🔒 *Requiere rol ADMIN o ser el mismo usuario*
+---
 
-Actualiza la información de un usuario.
+### PUT /usuarios/{id}
+
+Actualizar un usuario.
 
 **Request Body:**
 ```json
 {
-  "nombre": "Juan Carlos Pérez",
-  "telefono": "987654322"
+  "nombreCompleto": "Juan Pérez Actualizado",
+  "telefono": "987654321"
 }
 ```
 
 **Response:** `200 OK`
 
-### Eliminar Usuario
+---
 
-**DELETE** `/usuarios/{id}` 🔒 *Requiere rol ADMIN*
+### DELETE /usuarios/{id}
 
-Elimina un usuario del sistema.
+Desactivar un usuario. **[ADMIN]**
 
 **Response:** `204 No Content`
 
-## 💳 Pagos
+---
 
-### Listar Mis Pagos
+## 🔔 Notificaciones
 
-**GET** `/pagos`
+### GET /notificaciones
 
-Obtiene los pagos del usuario autenticado.
+Listar notificaciones del usuario actual.
+
+**Query Parameters:**
+- `leida` (opcional): Filtrar por estado (true/false)
 
 **Response:** `200 OK`
 ```json
 [
   {
-    "id": "507f1f77bcf86cd799439011",
-    "reservaId": "507f1f77bcf86cd799439012",
-    "monto": 80.00,
-    "metodoPago": "TARJETA",
-    "estado": "CONFIRMADO",
-    "fechaPago": "2024-01-15T10:00:00Z",
-    "numeroTransaccion": "TXN123456"
+    "id": "507f1f77bcf86cd799439015",
+    "usuarioId": "507f1f77bcf86cd799439011",
+    "titulo": "Reserva Confirmada",
+    "mensaje": "Tu reserva ha sido confirmada",
+    "tipo": "RESERVA",
+    "leida": false,
+    "fechaCreacion": "2024-01-15T10:00:00"
   }
 ]
 ```
 
-### Obtener Pago por ID
+---
 
-**GET** `/pagos/{id}`
+### PUT /notificaciones/{id}/leida
 
-Obtiene los detalles de un pago específico.
-
-**Response:** `200 OK`
-
-### Registrar Pago
-
-**POST** `/pagos`
-
-Registra un nuevo pago para una reserva.
-
-**Request Body:**
-```json
-{
-  "reservaId": "507f1f77bcf86cd799439012",
-  "monto": 80.00,
-  "metodoPago": "TARJETA",
-  "numeroTransaccion": "TXN123456"
-}
-```
-
-**Response:** `201 Created`
-
-### Confirmar Pago
-
-**PUT** `/pagos/{id}/confirmar` 🔒 *Requiere rol ADMIN*
-
-Confirma un pago pendiente.
+Marcar notificación como leída.
 
 **Response:** `200 OK`
 
-## ⏰ Horarios
+---
 
-### Listar Horarios
+## 📊 Auditoría
 
-**GET** `/horarios`
+### GET /auditorias
 
-Obtiene los horarios disponibles.
+Ver registros de auditoría. **[ADMIN]**
 
 **Query Parameters:**
-- `canchaId` (opcional): Filtrar por cancha
-- `diaSemana` (opcional): Filtrar por día (LUNES, MARTES, etc.)
+- `usuarioId` (opcional): Filtrar por usuario
+- `accion` (opcional): Filtrar por acción
+- `desde` (opcional): Fecha desde
+- `hasta` (opcional): Fecha hasta
 
 **Response:** `200 OK`
 ```json
 [
   {
-    "id": "507f1f77bcf86cd799439011",
+    "id": "507f1f77bcf86cd799439016",
+    "usuarioId": "507f1f77bcf86cd799439011",
+    "accion": "CREAR_RESERVA",
+    "entidad": "Reserva",
+    "entidadId": "507f1f77bcf86cd799439013",
+    "detalles": "Reserva creada para Cancha 1",
+    "fecha": "2024-01-15T10:00:00",
+    "ipAddress": "192.168.1.1"
+  }
+]
+```
+
+---
+
+## ⏰ Horarios
+
+### GET /horarios
+
+Listar horarios disponibles.
+
+**Query Parameters:**
+- `canchaId` (opcional): Filtrar por cancha
+- `diaSemana` (opcional): Filtrar por día
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": "507f1f77bcf86cd799439017",
     "canchaId": "507f1f77bcf86cd799439012",
     "diaSemana": "LUNES",
     "horaInicio": "08:00",
@@ -512,175 +503,96 @@ Obtiene los horarios disponibles.
 ]
 ```
 
-### Crear Horario
+---
 
-**POST** `/horarios` 🔒 *Requiere rol ADMIN*
+## 🏥 Health Check
 
-Crea un nuevo horario para una cancha.
+### GET /health
 
-**Request Body:**
-```json
-{
-  "canchaId": "507f1f77bcf86cd799439012",
-  "diaSemana": "LUNES",
-  "horaInicio": "08:00",
-  "horaFin": "22:00",
-  "disponible": true
-}
-```
-
-**Response:** `201 Created`
-
-## 🔔 Notificaciones
-
-### Listar Mis Notificaciones
-
-**GET** `/notificaciones`
-
-Obtiene las notificaciones del usuario autenticado.
-
-**Query Parameters:**
-- `leida` (opcional): Filtrar por estado de lectura (true/false)
-
-**Response:** `200 OK`
-```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "titulo": "Reserva Confirmada",
-    "mensaje": "Tu reserva para el 20/01/2024 ha sido confirmada",
-    "tipo": "RESERVA",
-    "leida": false,
-    "fechaCreacion": "2024-01-15T10:00:00Z"
-  }
-]
-```
-
-### Marcar como Leída
-
-**PUT** `/notificaciones/{id}/leida`
-
-Marca una notificación como leída.
-
-**Response:** `200 OK`
-
-## 📊 Auditoría
-
-### Listar Registros de Auditoría
-
-**GET** `/auditorias` 🔒 *Requiere rol ADMIN*
-
-Obtiene los registros de auditoría del sistema.
-
-**Query Parameters:**
-- `usuarioId` (opcional): Filtrar por usuario
-- `accion` (opcional): Filtrar por acción (CREAR, ACTUALIZAR, ELIMINAR)
-- `entidad` (opcional): Filtrar por entidad (RESERVA, CANCHA, etc.)
-- `fechaDesde` (opcional): Fecha desde
-- `fechaHasta` (opcional): Fecha hasta
-
-**Response:** `200 OK`
-```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "usuarioId": "507f1f77bcf86cd799439012",
-    "accion": "CREAR",
-    "entidad": "RESERVA",
-    "entidadId": "507f1f77bcf86cd799439013",
-    "detalles": "Reserva creada para cancha Principal",
-    "fecha": "2024-01-15T10:00:00Z",
-    "ipAddress": "192.168.1.1"
-  }
-]
-```
-
-## 📡 Health Check
-
-### Verificar Estado
-
-**GET** `/health`
-
-Verifica el estado de la aplicación.
+Verificar estado de la aplicación.
 
 **Response:** `200 OK`
 ```json
 {
   "status": "UP",
-  "timestamp": "2024-01-15T10:00:00Z",
-  "version": "1.0.0"
+  "timestamp": "2024-01-15T10:00:00"
 }
 ```
 
-## 📊 Códigos de Estado HTTP
+---
 
-| Código | Descripción |
-|--------|-------------|
-| 200 | OK - Solicitud exitosa |
-| 201 | Created - Recurso creado exitosamente |
-| 204 | No Content - Solicitud exitosa sin contenido |
-| 400 | Bad Request - Datos inválidos |
-| 401 | Unauthorized - No autenticado |
-| 403 | Forbidden - Sin permisos |
-| 404 | Not Found - Recurso no encontrado |
-| 409 | Conflict - Conflicto (ej: horario no disponible) |
-| 500 | Internal Server Error - Error del servidor |
+## 📝 Códigos de Estado HTTP
 
-## 🔧 Ejemplos de Uso
+- `200 OK` - Solicitud exitosa
+- `201 Created` - Recurso creado exitosamente
+- `204 No Content` - Solicitud exitosa sin contenido
+- `400 Bad Request` - Datos inválidos
+- `401 Unauthorized` - No autenticado
+- `403 Forbidden` - No autorizado
+- `404 Not Found` - Recurso no encontrado
+- `409 Conflict` - Conflicto con el estado actual
+- `500 Internal Server Error` - Error del servidor
 
-### Ejemplo completo: Crear una reserva
+## 🔒 Roles y Permisos
 
+### CLIENTE
+- Ver canchas
+- Crear/ver/cancelar sus propias reservas
+- Ver/procesar sus propios pagos
+- Ver/actualizar su perfil
+- Ver sus notificaciones
+
+### ADMIN
+- Todos los permisos de CLIENTE
+- Gestionar canchas (CRUD)
+- Ver todas las reservas
+- Confirmar pagos
+- Gestionar usuarios
+- Ver auditoría
+- Gestionar horarios
+
+## 📚 Ejemplos con cURL
+
+### Registro
 ```bash
-# 1. Login
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombreCompleto": "Juan Pérez",
+    "email": "juan@example.com",
+    "password": "password123",
+    "telefono": "123456789"
+  }'
+```
+
+### Login
+```bash
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "juan@example.com",
     "password": "password123"
   }'
+```
 
-# Response: { "token": "eyJhbGc..." }
+### Listar Canchas (con token)
+```bash
+curl -X GET http://localhost:8080/api/canchas \
+  -H "Authorization: Bearer <tu_token>"
+```
 
-# 2. Listar canchas disponibles
-curl -X GET http://localhost:8080/api/canchas?disponible=true \
-  -H "Authorization: Bearer eyJhbGc..."
-
-# 3. Verificar disponibilidad
-curl -X GET "http://localhost:8080/api/reservas/disponibilidad?canchaId=507f1f77bcf86cd799439012&fechaInicio=2024-01-20T18:00:00Z&fechaFin=2024-01-20T19:00:00Z" \
-  -H "Authorization: Bearer eyJhbGc..."
-
-# 4. Crear reserva
+### Crear Reserva
+```bash
 curl -X POST http://localhost:8080/api/reservas \
-  -H "Authorization: Bearer eyJhbGc..." \
+  -H "Authorization: Bearer <tu_token>" \
   -H "Content-Type: application/json" \
   -d '{
     "canchaId": "507f1f77bcf86cd799439012",
-    "fechaInicio": "2024-01-20T18:00:00Z",
-    "fechaFin": "2024-01-20T19:00:00Z",
-    "observaciones": "Partido amistoso"
-  }'
-
-# 5. Registrar pago
-curl -X POST http://localhost:8080/api/pagos \
-  -H "Authorization: Bearer eyJhbGc..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "reservaId": "507f1f77bcf86cd799439011",
-    "monto": 80.00,
-    "metodoPago": "TARJETA",
-    "numeroTransaccion": "TXN123456"
+    "fechaInicio": "2024-01-20T10:00:00",
+    "fechaFin": "2024-01-20T12:00:00"
   }'
 ```
 
-## 📚 Recursos Adicionales
+---
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
-- **Postman Collection**: [Descargar](./postman/SGC-Ultimate.postman_collection.json)
-
-## 🤝 Soporte
-
-Para reportar problemas o solicitar ayuda:
-- 📧 Email: api-support@sgcultimate.com
-- 🐛 Issues: [GitHub Issues](https://github.com/tu-repo/issues)
-- 📖 Docs: [Documentación Completa](https://docs.sgcultimate.com)
+**Documentación Interactiva**: Para una experiencia más completa, visita `http://localhost:8080/swagger-ui.html` donde puedes probar todos los endpoints directamente desde el navegador.

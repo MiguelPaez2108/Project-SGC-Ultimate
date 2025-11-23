@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SGC Ultimate - Sistema de Gestión de Canchas Deportivas. Reserva tu cancha de fútbol, tenis, básquetbol y más de forma fácil y rápida.">
+    <meta name="keywords" content="canchas deportivas, reservas, fútbol, tenis, básquetbol, deportes">
+    <meta name="author" content="SGC Ultimate">
+    <title>SGC Ultimate - Sistema de Gestión de Canchas Deportivas</title>
+    
+    <style>
+        /* ============================================
+           RESET Y CONFIGURACIÓN BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           VARIABLES CSS
+           ============================================ */
+        :root {
+            --color-white: #ffffff;
+            --color-light-gray: #f8f9fa;
+            --color-gray: #e9ecef;
+            --color-dark-gray: #dee2e6;
+            --color-text: #333333;
+            --color-text-light: #666666;
+            --color-border: #e0e0e0;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 2rem;
+            --spacing-lg: 3rem;
+            --spacing-xl: 4rem;
+            --spacing-2xl: 6rem;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* ============================================
+           TIPOGRAFÍA
+           ============================================ */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: var(--color-text);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 2rem;
+        }
+
+        h4 {
+            font-size: 1.5rem;
+        }
+
+        h5 {
+            font-size: 1.25rem;
+        }
+
+        h6 {
+            font-size: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--color-text-light);
+            font-size: 1.1rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        /* ============================================
+           CONTENEDORES Y LAYOUT
+           ============================================ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        .section {
+            padding: var(--spacing-2xl) 0;
+            background-color: var(--color-white);
+        }
+
+        .section-alt {
+            background-color: var(--color-light-gray);
+        }
+
+        /* ============================================
+           HEADER Y NAVEGACIÓN
+           ============================================ */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--color-white);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--color-light-gray);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--color-text);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--color-text);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* ============================================
+           BOTONES
+           ============================================ */
+        .btn {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--color-text);
+            color: var(--color-white);
+            border-color: var(--color-text);
+        }
+
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--color-text);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--color-text);
+            border-color: var(--color-text);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--color-text);
+            color: var(--color-white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-large {
+            padding: 1.25rem 3rem;
+            font-size: 1.125rem;
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            padding-top: 120px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--color-white) 0%, var(--color-light-gray) 100%);
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-xl);
+            align-items: center;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--color-text-light);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            position: relative;
+            height: 600px;
+        }
+
+        .hero-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-gray);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--color-text-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ============================================
+           CARACTERÍSTICAS
+           ============================================ */
+        .features {
+            padding: var(--spacing-2xl) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto var(--spacing-xl);
+        }
+
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.25rem;
+            color: var(--color-text-light);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .feature-card {
+            background-color: var(--color-white);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid var(--color-border);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--color-light-gray);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--color-text-light);
+            line-height: 1.8;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1024px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+            .hero-title { font-size: 3rem; }
+            .section-title { font-size: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-image {
+                height: 400px;
+            }
+
+            h1 { font-size: 2.5rem; }
+            .hero-title { font-size: 2.5rem; }
+            .section-title { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <div class="logo-icon">⚽</div>
+                    <span>SGC Ultimate</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#inicio" class="nav-link">Inicio</a></li>
+                    <li><a href="#caracteristicas" class="nav-link">Características</a></li>
+                    <li><a href="#canchas" class="nav-link">Canchas</a></li>
+                    <li><a href="#contacto" class="nav-link">Contacto</a></li>
+                </ul>
+                <div class="nav-buttons">
+                    <a href="/login" class="btn btn-outline">Iniciar Sesión</a>
+                    <a href="/register" class="btn btn-primary">Registrarse</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="inicio" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Reserva tu Cancha Deportiva en Segundos</h1>
+                    <p class="hero-subtitle">
+                        El sistema más completo para gestionar y reservar canchas deportivas. 
+                        Fácil, rápido y seguro.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="/register" class="btn btn-primary btn-large">Comenzar Ahora</a>
+                        <a href="#caracteristicas" class="btn btn-outline btn-large">Ver Más</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="hero-image-placeholder">
+                        🏟️ Imagen de Cancha Deportiva
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CARACTERÍSTICAS -->
+    <section id="caracteristicas" class="section section-alt features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">¿Por qué elegir SGC Ultimate?</h2>
+                <p class="section-description">
+                    Ofrecemos la mejor experiencia en gestión y reserva de canchas deportivas
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Reservas en Tiempo Real</h3>
+                    <p class="feature-description">
+                        Consulta la disponibilidad y reserva tu cancha al instante. 
+                        Sistema actualizado en tiempo real para evitar conflictos.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3 class="feature-title">Pagos Seguros</h3>
+                    <p class="feature-description">
+                        Múltiples métodos de pago disponibles. Transacciones seguras 
+                        y protegidas con la mejor tecnología de encriptación.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Acceso Móvil</h3>
+                    <p class="feature-description">
+                        Gestiona tus reservas desde cualquier dispositivo. 
+                        Interfaz responsive optimizada para móviles y tablets.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3 class="feature-title">Notificaciones</h3>
+                    <p class="feature-description">
+                        Recibe recordatorios automáticos de tus reservas. 
+                        Mantente informado sobre cambios y actualizaciones.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Panel de Control</h3>
+                    <p class="feature-description">
+                        Visualiza todas tus reservas y pagos en un solo lugar. 
+                        Estadísticas detalladas y reportes personalizados.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3 class="feature-title">Sistema de Calificaciones</h3>
+                    <p class="feature-description">
+                        Lee y comparte opiniones sobre las canchas. 
+                        Ayuda a otros usuarios a tomar mejores decisiones.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="section section-alt">
+        <div class="container">
+            <div style="text-align: center; padding: 2rem 0;">
+                <div class="logo" style="justify-content: center; margin-bottom: 1rem;">
+                    <div class="logo-icon">⚽</div>
+                    <span>SGC Ultimate</span>
+                </div>
+                <p style="color: var(--color-text-light); margin-bottom: 1rem;">
+                    Sistema de Gestión de Canchas Deportivas
+                </p>
+                <p style="color: var(--color-text-light); font-size: 0.9rem;">
+                    © 2024 SGC Ultimate. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
