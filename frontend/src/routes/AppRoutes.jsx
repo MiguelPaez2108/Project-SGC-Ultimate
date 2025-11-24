@@ -7,7 +7,7 @@ import { ROUTES, ROLES } from '@utils/constants';
 import { lazy, Suspense } from 'react';
 
 // Auth pages
-const Login = lazy(() => import('@pages/auth/Login'));
+const Login = lazy(() => import('@pages/auth/LoginAsus'));
 const Register = lazy(() => import('@pages/auth/Register'));
 
 // Dashboard pages
